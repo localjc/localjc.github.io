@@ -13,11 +13,11 @@
 
     <title>
         
-          写在前面 - jiangcheng&#39;s Blog
+          Java中单例模式的实现 - jiangcheng&#39;s Blog
         
     </title>
 
-    <link rel="canonical" href="http://jiangcheng.space/2016/11/13/写在前面/">
+    <link rel="canonical" href="http://jiangcheng.space/2017/09/28/Java中单例模式的实现/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -161,14 +161,14 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                          <a class="tag" href="/tags/#感悟" title="感悟">感悟</a>
+                          <a class="tag" href="/tags/#Java基础" title="Java基础">Java基础</a>
                         
                     </div>
-                    <h1>写在前面</h1>
+                    <h1>Java中单例模式的实现</h1>
                     <h2 class="subheading"></h2>
                     <span class="meta">
                         Posted by jiangcheng on
-                        2016-11-13
+                        2017-09-28
                     </span>
                 </div>
             </div>
@@ -188,14 +188,33 @@
                 post-container">
 
                 <blockquote>
-<p> 捣鼓了这么久的个人博客，今天终于开通了。多谢朋友和网上教程的帮助。</p>
+<p>单例模式作为23种设计模式中最常用的一种，也是面试中的常客，但是很少有人能把每种实现方式的不同讲清楚的，今天我们就来探讨下它。</p>
 </blockquote>
-<h4 id="一、开始"><a href="#一、开始" class="headerlink" title="一、开始"></a>一、开始</h4><p>其实搭这种博客网上已经有很多教程了，只是我不懂前端的代码，也没有这个耐心来弄，所以拖到现在才出来，图片还是直接从别人那里copy过来的。这个后面慢慢再来弄吧~</p>
-<h4 id="二、目的"><a href="#二、目的" class="headerlink" title="二、目的"></a>二、目的</h4><p>搭这个博客主要是用来记录自己开发中遇到的一些问题和生活中的一些感悟吧。俗话说好记性不如烂笔头, 写博客一方面能提高自己的写作能力，另一方面也能更好的巩固在项目开发中用到的一些技能点。</p>
-<h4 id="三、最后"><a href="#三、最后" class="headerlink" title="三、最后"></a>三、最后</h4><p>  啥也别说了，加油吧~</p>
+<h3 id="1、单例模式的作用"><a href="#1、单例模式的作用" class="headerlink" title="1、单例模式的作用"></a>1、单例模式的作用</h3><p>单例模式主要用于解决多次调用的地方都是用的同一个实例，避免一个应用中存在多个该对象的实例，常见的实现手段就是不允许外部创建对象，将构造方法私有化，自己提供静态方法将对象的实例暴露出去。</p>
+<h3 id="2、常见的几种单例模式的实现"><a href="#2、常见的几种单例模式的实现" class="headerlink" title="2、常见的几种单例模式的实现"></a>2、常见的几种单例模式的实现</h3><h4 id="2-1-懒汉、饿汉、变种饿汉-静态代码块实现-模式"><a href="#2-1-懒汉、饿汉、变种饿汉-静态代码块实现-模式" class="headerlink" title="2.1 懒汉、饿汉、变种饿汉(静态代码块实现)模式"></a>2.1 懒汉、饿汉、变种饿汉(静态代码块实现)模式</h4><p>这两种模式在实现上都有一定的缺陷，懒汉模式要实现多线程安全就需要对getInstance()方法上加上synchronize 关键字，效率很低，饿汉模式虽然一开始就创建了实例，但是在类加载的时候就创建了对象，不能实现懒加载。</p>
+<p>懒汉:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Created by jiangcheng on 2017/9/28.</div><div class="line"> */</div><div class="line">public class Singleton &#123;</div><div class="line"></div><div class="line">    private static Singleton sInstance;</div><div class="line">    // 私有构造方法</div><div class="line">    private Singleton() &#123;&#125;</div><div class="line"></div><div class="line">    public static synchronized Singleton getInstance () &#123;</div><div class="line">        if (sInstance == null) &#123;</div><div class="line">            sInstance = new Singleton();</div><div class="line">        &#125;</div><div class="line">        return sInstance;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="2-2-双重检测"><a href="#2-2-双重检测" class="headerlink" title="2.2 双重检测"></a>2.2 双重检测</h4><p>由于懒汉模式是对方法进行加锁的，所以当多个线程同时访问该方法时，效率很低，synchronized修饰的同步方法比一般方法要慢很多。</p>
+<p>双重检测:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">public class Singleton &#123;</div><div class="line"></div><div class="line">    private static Singleton sInstance;</div><div class="line"></div><div class="line">    private Singleton() &#123;&#125;</div><div class="line"></div><div class="line">    public static Singleton getInstance () &#123;</div><div class="line">        if (sInstance == null) &#123;   // 1</div><div class="line">            synchronized (Singleton.class) &#123;</div><div class="line">                if (sInstance == null) &#123;  // 2</div><div class="line">                    sInstance = new Singleton();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        return sInstance;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们来分析下，双重检测的原理，可以看到上面代码1处在同步代码块外多了一层instance为空的判断。由于单例对象只需要创建一次，如果后面再次调用getInstance()只需要直接返回单例对象。因此，大部分情况下，调用getInstance()都不会执行到同步代码块，从而提高了程序性能。不过还需要考虑一种情况，假如两个线程A、B，A执行了if (instance == null)语句，它会认为单例对象没有创建，此时线程切到B也执行了同样的语句，B也认为单例对象没有创建，然后两个线程依次执行同步代码块，并分别创建了一个单例对象。为了解决这个问题，还需要在同步代码块中增加if (instance == null)语句，也就是上面看到的代码2。</p>
 <ul>
-<li>英语作文中三段，今日又重现了。哈哈!</li>
+<li>这种实现就真的完美么？ </li>
 </ul>
+<p>由于java平台的指定优化重排后的无序性，会导致初始化Singleton和将对象地址赋给instance字段的顺序是不确定的。在某个线程创建单例对象时，在构造方法被调用之前，就为该对象分配了内存空间并将对象的字段设置为默认值。此时就可以将分配的内存地址赋值给instance字段了，然而该对象可能还没有初始化。若紧接着另外一个线程来调用getInstance，取到的就是状态不正确的对象，程序就会出错，双重检测就会失效。</p>
+<p>不过JDK 1.5后 Java中提供了关键字 volatile。 volatile的一个语义是禁止指令重排序优化，他定义的变量在多线程操作中，是对所有线程可见的，也就保证了instance变量被赋值的时候对象已经是初始化过的，从而避免了上面说到的问题。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">private static volatile Singleton sInstance;    // volatile 关键字的使用</div></pre></td></tr></table></figure>
+<h4 id="2-3-静态内部类-推荐"><a href="#2-3-静态内部类-推荐" class="headerlink" title="2.3 静态内部类(推荐)"></a>2.3 静态内部类(推荐)</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">public class Singleton &#123;</div><div class="line">    private Singleton() &#123;&#125;</div><div class="line">    </div><div class="line">    private static class SingletonHolder &#123;</div><div class="line">        private static Singleton sInstance = new Singleton();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public static Singleton getInstance () &#123;</div><div class="line">        return SingletonHolder.sInstance;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这种方式利用了Java在类加载的时候只允许一个线程加载，它是在内部类里面去创建对象实例。这样的话，只要应用中不使用内部类，JVM就不会去加载这个单例类，也就不会创建单例对象，从而实现懒汉式的延迟加载。也就是说这种方式可以同时保证延迟加载和线程安全。这种方式比较容易看的懂，也很简洁，所以推荐改种实现方式。</p>
+<h4 id="2-4-枚举"><a href="#2-4-枚举" class="headerlink" title="2.4 枚举"></a>2.4 枚举</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public enum Singleton &#123;</div><div class="line">    instance;</div><div class="line">    public void whateverMethod() &#123;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>由于前面几种都有两个共同的缺点:</p>
+<ol>
+<li>需要额外的工作来实现序列化，否则每次反序列化一个序列化的对象时都会创建一个新的实例。</li>
+<li>可以使用反射强行调用私有构造器（如果要避免这种情况，可以修改构造器，让它在创建第二个实例的时候抛异常）。</li>
+</ol>
+<p>而枚举类很好的解决了这两个问题，使用枚举除了线程安全和防止反射调用构造器之外，还提供了自动序列化机制，防止反序列化的时候创建新的对象。因此，《Effective Java》作者推荐使用的方法。不过，在实际工作中，很少看见有人这么写。</p>
+<p>枚举在Java中是很特殊的存在，可以参考<a href="http://www.cnblogs.com/cielosun/p/6596475.html" target="_blank" rel="external">Java枚举enum及其应用</a></p>
+<h3 id="3、总结"><a href="#3、总结" class="headerlink" title="3、总结"></a>3、总结</h3><p>上面几种单例模式的实现都各有优缺点，适用于不同的场景，不过双重检测和静态内部类能解决工作中大部分的问题，枚举虽然很有特色、很完美，但是工作中用的还是比较少的。我的建议是使用静态内部类，简单易懂。</p>
 
 
                 <hr>
@@ -204,10 +223,10 @@
 
                 <ul class="pager">
                     
-                        <li class="previous">
-                            <a href="/2017/01/22/RecycleView使用总结/" data-toggle="tooltip" data-placement="top" title="RecycleView使用总结">&larr; Previous Post</a>
-                        </li>
                     
+                        <li class="next">
+                            <a href="/2017/07/07/基于Mars库实现高可用的日志库xlog/" data-toggle="tooltip" data-placement="top" title="基于Mars库实现高可用的日志库xlog">Next Post &rarr;</a>
+                        </li>
                     
                 </ul>
 
@@ -239,7 +258,7 @@
                     <h5><a href="/tags/">FEATURED TAGS</a></h5>
                     <div class="tags">
                        
-                          <a class="tag" href="/tags/#感悟" title="感悟">感悟</a>
+                          <a class="tag" href="/tags/#Java基础" title="Java基础">Java基础</a>
                         
                     </div>
                 </section>
@@ -260,8 +279,8 @@
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "hexo-theme-huxblog";
-    var disqus_identifier = "http://jiangcheng.space/2016/11/13/写在前面/";
-    var disqus_url = "http://jiangcheng.space/2016/11/13/写在前面/";
+    var disqus_identifier = "http://jiangcheng.space/2017/09/28/Java中单例模式的实现/";
+    var disqus_url = "http://jiangcheng.space/2017/09/28/Java中单例模式的实现/";
 
     (function() {
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
